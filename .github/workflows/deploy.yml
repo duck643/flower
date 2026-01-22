@@ -1,0 +1,12 @@
+name: Deploy to Firebase Hosting
+on:
+  push:
+    branches: [ main ]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: firebase/firebase-github-action@v3
+        with:
+          token: ${{ secrets.FIREBASE_TOKEN }}
