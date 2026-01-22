@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Продажи</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <div class="container">
+    <h2>Добавить продажу</h2>
+    <select id="product" required></select>
+    <input type="number" id="amount" placeholder="Сумма (руб)" step="0.01" required />
+    <button onclick="addSale()">Сохранить</button>
+    <div id="salesList"></div>
+    <br><a href="dashboard.html">← Назад</a>
+  </div>
+
+  <script type="module">
+    import { auth } from '../js/firebase-config.js';
+    import { collection, addDoc, getDocs, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { db } from '../js/firebase-config.js';
+
+    const user = auth.currentUser;
+    if (!user) window.location.href = '../login.html';
+
+    // Загрузка товаров
+    const productsSelect = document.getElementById('product');
+    const productsSnap = await getDocs(collection(db, 'products'));
+    productsSnap.forEach(doc => {
+      const opt = document.createElement('option');
+      opt.value = doc.id;
+      opt.textContent = `${doc.data().name} (${doc.data().price} ₽)`;
+      productsSelect.appendChild(opt);
+    });
+
+    // История продаж
+    const salesRef = collection(db, 'sales');
+    const q = query(salesRef, where('userId', '==', user.uid), orderBy('date', 'desc'));
+    const salesSnap = await getDocs(q);
+    let html = '<h3>Мои продажи:</h3><ul>';
+    salesSnap.forEach(doc => {
+      const d = doc.data();
+      html += `<li>${d.productName}: ${d.amount} ₽ (${d.date})</li>`;
+    });
+    html += '</ul>';
+    document.getElementById('salesList').innerHTML = html;
+
+    window.addSale = async () => {
+      const productId = productsSelect.value;
+      const amount = parseFloat(document.getElementById('amount').value);
+      if (!productId || !amount) return alert('Заполните все поля');
+
+      const productDoc = await getDocs(query(collection(db, 'products'), where('__name__', '==', productId)));
+      const productName = productDoc.docs[0]?.data().name || 'Неизвестно';
+
+      await addDoc(salesRef, {
+        userId: user.uid,
+        productId,
+        productName,
+        amount,
+        date: new Date().toISOString().split('T')[0]
+      });
+      alert('Продажа добавлена!');
+      location.reload();
+    };
+  </script>
+</body>
+</html>
