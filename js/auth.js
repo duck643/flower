@@ -7,7 +7,7 @@ import { db } from './firebase-config.js';
 export function checkUserRole() {
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
-      window.location.href = '../login.html';
+      window.location.href = '/flower/login.html';
       return;
     }
 
@@ -15,13 +15,13 @@ export function checkUserRole() {
     if (userDoc.exists()) {
       const role = userDoc.data().role;
       if (role === 'admin') {
-        window.location.href = '../admin/dashboard.html';
+        window.location.href = '/flower/admin/dashboard.html';
       } else {
-        window.location.href = '../employee/dashboard.html';
+        window.location.href = '/flower/employee/dashboard.html';
       }
     } else {
       alert('Пользователь не найден в системе. Обратитесь к администратору.');
-      window.location.href = '../login.html';
+      window.location.href = '/flower/login.html';
     }
   });
 }
