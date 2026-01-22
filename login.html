@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Вход</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="container">
+    <h2>Вход в систему</h2>
+    <input type="email" id="email" placeholder="Email" required />
+    <input type="password" id="password" placeholder="Пароль" required />
+    <button onclick="login()">Войти</button>
+    <p id="error" style="color: red; margin-top: 10px;"></p>
+  </div>
+
+  <script type="module">
+    import { auth } from './js/firebase-config.js';
+    import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { checkUserRole } from './js/auth.js';
+
+    window.login = async () => {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const errorEl = document.getElementById('error');
+      errorEl.textContent = '';
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        checkUserRole();
+      } catch (err) {
+        errorEl.textContent = 'Ошибка входа: ' + err.message;
+      }
+    };
+  </script>
+</body>
+</html>
