@@ -2,7 +2,9 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Личный кабинет</title>
+  <base href="/flower/">
   <link rel="stylesheet" href="../css/style.css" />
 </head>
 <body>
@@ -22,7 +24,6 @@
     import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
     import { db } from '../js/firebase-config.js';
 
-    // Загружаем имя
     const user = auth.currentUser;
     if (user) {
       const userDoc = await getDoc(doc(db, 'users', user.uid));
