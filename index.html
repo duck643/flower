@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Цветочный учёт</title>
+  <script type="module">
+    import { auth } from './js/firebase-config.js';
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // Перенаправляем после проверки роли
+        import('./js/auth.js').then(m => m.checkUserRole());
+      } else {
+        window.location.href = 'login.html';
+      }
+    });
+  </script>
+</head>
+<body>
+  <p>Загрузка...</p>
+</body>
+</html>
