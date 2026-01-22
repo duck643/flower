@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Ассортимент</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <div class="container">
+    <h2>Управление товарами</h2>
+    <input type="text" id="prodName" placeholder="Название" />
+    <input type="number" id="prodPrice" placeholder="Цена" step="0.01" />
+    <input type="number" id="prodCost" placeholder="Себестоимость" step="0.01" />
+    <button onclick="addProduct()">Добавить</button>
+    <div id="productsList"></div>
+    <br><a href="dashboard.html">← Назад</a>
+  </div>
+
+  <script type="module">
+    import { collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { db } from '../js/firebase-config.js';
+
+    const loadProducts = async () => {
+      const snap = await getDocs(collection(db, 'products'));
+      let html = '<h3>Товары:</h3><ul>';
+      snap.forEach(doc => {
+        const d = doc.data();
+        html += `<li>${d.name} — ${d.price} ₽ (себестоимость: ${d.cost} ₽)
+          <button onclick="deleteProd('${doc.id}')">Удалить</button>
+        </li>`;
+      });
+      html += '</ul>';
+      document.getElementById('productsList').innerHTML = html;
+    };
+
+    window.addProduct = async () => {
+      const name = document.getElementById('prodName').value;
+      const price = parseFloat(document.getElementById('prodPrice').value);
+      const cost = parseFloat(document.getElementById('prodCost').value);
+      if (!name || !price) return alert('Заполните поля');
+      await addDoc(collection(db, 'products'), { name, price, cost });
+      document.getElementById('prodName').value = '';
+      document.getElementById('prodPrice').value = '';
+      document.getElementById('prodCost').value = '';
+      loadProducts();
+    };
+
+    window.deleteProd = async (id) => {
+      if (confirm('Удалить?')) {
+        await deleteDoc(doc(db, 'products', id));
+        loadProducts();
+      }
+    };
+
+    loadProducts();
+  </script>
+</body>
+</html>
