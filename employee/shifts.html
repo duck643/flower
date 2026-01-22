@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Смены</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <div class="container">
+    <h2>Мои смены</h2>
+    <button onclick="startShift()">Начать смену</button>
+    <button onclick="endShift()">Завершить смену</button>
+    <div id="shiftsList"></div>
+    <br><a href="dashboard.html">← Назад</a>
+  </div>
+
+  <script type="module">
+    import { auth } from '../js/firebase-config.js';
+    import { collection, addDoc, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { db } from '../js/firebase-config.js';
+
+    const user = auth.currentUser;
+    if (!user) window.location.href = '../login.html';
+
+    const shiftsRef = collection(db, 'shifts');
+    const q = query(shiftsRef, where('userId', '==', user.uid), orderBy('startTime', 'desc'));
+    const snapshot = await getDocs(q);
+    let html = '<h3>История:</h3><ul>';
+    snapshot.forEach(doc => {
+      const d = doc.data();
+      const start = new Date(d.startTime).toLocaleString();
+      const end = d.endTime ? new Date(d.endTime).toLocaleString() : '—';
+      html += `<li>${start} → ${end}</li>`;
+    });
+    html += '</ul>';
+    document.getElementById('shiftsList').innerHTML = html;
+
+    window.startShift = async () => {
+      await addDoc(shiftsRef, {
+        userId: user.uid,
+        startTime: new Date(),
+        status: 'active'
+      });
+      alert('Смена начата!');
+      location.reload();
+    };
+
+    window.endShift = async () => {
+      const activeQ = query(shiftsRef, where('userId', '==', user.uid), where('status', '==', 'active'));
+      const activeSnap = await getDocs(activeQ);
+      if (!activeSnap.empty) {
+        const shift = activeSnap.docs[0];
+        await shift.ref.update({ endTime: new Date(), status: 'completed' });
+        alert('Смена завершена!');
+        location.reload();
+      } else {
+        alert('Нет активной смены');
+      }
+    };
+  </script>
+</body>
+</html>
