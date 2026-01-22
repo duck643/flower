@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Личный кабинет</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <div class="container">
+    <h2>Привет, <span id="userName">...</span>!</h2>
+    <nav>
+      <a href="shifts.html">Смены</a><br>
+      <a href="sales.html">Продажи</a><br>
+      <a href="tasks.html">Задачи</a><br>
+      <button onclick="logout()">Выйти</button>
+    </nav>
+  </div>
+
+  <script type="module">
+    import { auth } from '../js/firebase-config.js';
+    import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { db } from '../js/firebase-config.js';
+
+    // Загружаем имя
+    const user = auth.currentUser;
+    if (user) {
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      if (userDoc.exists()) {
+        document.getElementById('userName').textContent = userDoc.data().name || 'Коллега';
+      }
+    }
+
+    window.logout = async () => {
+      await signOut(auth);
+      window.location.href = '../login.html';
+    };
+  </script>
+</body>
+</html>
