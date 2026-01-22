@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Админка</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <div class="container">
+    <h2>Панель руководителя</h2>
+    <nav>
+      <a href="employees.html">Сотрудники</a><br>
+      <a href="products.html">Ассортимент</a><br>
+      <a href="schedule.html">График</a><br>
+      <a href="analytics.html">Аналитика</a><br>
+      <button onclick="logout()">Выйти</button>
+    </nav>
+  </div>
+
+  <script type="module">
+    import { auth } from '../js/firebase-config.js';
+    import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    window.logout = async () => {
+      await signOut(auth);
+      window.location.href = '../login.html';
+    };
+  </script>
+</body>
+</html>
