@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Задачи</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <div class="container">
+    <h2>Мои задачи</h2>
+    <div id="tasksList"></div>
+    <br><a href="dashboard.html">← Назад</a>
+  </div>
+
+  <script type="module">
+    import { auth } from '../js/firebase-config.js';
+    import { collection, getDocs, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { db } from '../js/firebase-config.js';
+
+    const user = auth.currentUser;
+    if (!user) window.location.href = '../login.html';
+
+    const tasksRef = collection(db, 'tasks');
+    const q = query(tasksRef, where('assignedTo', '==', user.uid), orderBy('dueDate', 'desc'));
+    const snap = await getDocs(q);
+    let html = '<ul>';
+    snap.forEach(doc => {
+      const d = doc.data();
+      const status = d.status === 'done' ? '✅' : '⏳';
+      html += `<li>${status} ${d.title} (до: ${d.dueDate})</li>`;
+    });
+    html += '</ul>';
+    document.getElementById('tasksList').innerHTML = html || '<p>Нет задач</p>';
+  </script>
+</body>
+</html>
