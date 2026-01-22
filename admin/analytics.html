@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Аналитика</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <div class="container">
+    <h2>Статистика</h2>
+    <div id="stats"></div>
+    <button onclick="exportReport()">Экспорт в Excel</button>
+    <br><a href="dashboard.html">← Назад</a>
+  </div>
+
+  <script type="module">
+    import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { db } from '../js/firebase-config.js';
+    import { exportToExcel } from '../js/export.js';
+
+    const salesSnap = await getDocs(collection(db, 'sales'));
+    let total = 0;
+    const reportData = [];
+    salesSnap.forEach(doc => {
+      const d = doc.data();
+      total += d.amount;
+      reportData.push({
+        Дата: d.date,
+        Товар: d.productName,
+        Сумма: d.amount
+      });
+    });
+
+    document.getElementById('stats').innerHTML = `
+      <p>Общая выручка: <strong>${total.toFixed(2)} ₽</strong></p>
+      <p>Всего продаж: ${reportData.length}</p>
+    `;
+
+    window.exportReport = () => {
+      exportToExcel(reportData, 'продажи.xlsx');
+    };
+  </script>
+</body>
+</html>
